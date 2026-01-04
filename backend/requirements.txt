@@ -1,0 +1,13 @@
+flask
+flask-cors
+flask-bcrypt
+pymongo
+python-multipart
+pypdf2
+pdf2docx
+img2pdf
+pymupdf
+python-dotenv
+python-docx
+fpdf2
+docx2pdf
