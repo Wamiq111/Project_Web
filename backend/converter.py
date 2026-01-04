@@ -4,6 +4,10 @@ from docx2pdf import convert as docx_to_pdf_convert
 import img2pdf
 import fitz  # PyMuPDF
 from typing import List
+try:
+    import pythoncom
+except ImportError:
+    pythoncom = None
 
 def pdf_to_word(pdf_path: str, word_path: str):
     cv = Converter(pdf_path)
@@ -13,7 +17,13 @@ def pdf_to_word(pdf_path: str, word_path: str):
 def word_to_pdf(word_path: str, pdf_path: str):
     # This requires Microsoft Word installed on Windows
     # On Linux, LibreOffice is needed.
-    docx_to_pdf_convert(word_path, pdf_path)
+    if pythoncom:
+        pythoncom.CoInitialize()
+    try:
+        docx_to_pdf_convert(word_path, pdf_path)
+    finally:
+        if pythoncom:
+            pythoncom.CoUninitialize()
 
 def jpg_to_pdf(jpg_paths: List[str], pdf_path: str):
     with open(pdf_path, "wb") as f:

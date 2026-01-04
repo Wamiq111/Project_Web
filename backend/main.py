@@ -40,7 +40,7 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = os.path.abspath("uploads")
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
@@ -92,9 +92,12 @@ def api_pdf_to_word():
     file.save(pdf_path)
     
     try:
+        print(f"Converting PDF to Word: {pdf_path} -> {word_path}")
         pdf_to_word(pdf_path, word_path)
+        print("Conversion successful")
         return send_file(word_path, as_attachment=True, download_name=f"{file.filename.split('.')[0]}.docx")
     except Exception as e:
+        print(f"Conversion failed: {str(e)}")
         return jsonify({"detail": str(e)}), 500
 
 @app.route("/convert/word-to-pdf", methods=["POST"])
@@ -107,9 +110,12 @@ def api_word_to_pdf():
     file.save(word_path)
     
     try:
+        print(f"Converting Word to PDF: {word_path} -> {pdf_path}")
         word_to_pdf(word_path, pdf_path)
+        print("Conversion successful")
         return send_file(pdf_path, as_attachment=True, download_name=f"{file.filename.split('.')[0]}.pdf")
     except Exception as e:
+        print(f"Conversion failed: {str(e)}")
         return jsonify({"detail": str(e)}), 500
 
 @app.route("/convert/jpg-to-pdf", methods=["POST"])
@@ -125,9 +131,12 @@ def api_jpg_to_pdf():
         jpg_paths.append(temp_path)
     
     try:
+        print(f"Converting JPG to PDF: {jpg_paths} -> {pdf_path}")
         jpg_to_pdf(jpg_paths, pdf_path)
+        print("Conversion successful")
         return send_file(pdf_path, as_attachment=True, download_name="converted.pdf")
     except Exception as e:
+        print(f"Conversion failed: {str(e)}")
         return jsonify({"detail": str(e)}), 500
 
 @app.route("/convert/pdf-to-jpg", methods=["POST"])
@@ -140,13 +149,16 @@ def api_pdf_to_jpg():
     file.save(pdf_path)
     
     try:
+        print(f"Converting PDF to JPG: {pdf_path} -> {output_folder}")
         image_paths = pdf_to_jpg(pdf_path, output_folder)
+        print(f"Conversion successful, generated {len(image_paths)} images")
         zip_path = os.path.join(UPLOAD_DIR, f"{file_id}.zip")
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             for img in image_paths:
                 zipf.write(img, os.path.basename(img))
         return send_file(zip_path, as_attachment=True, download_name=f"{file.filename.split('.')[0]}_images.zip")
     except Exception as e:
+        print(f"Conversion failed: {str(e)}")
         return jsonify({"detail": str(e)}), 500
 
 @app.route("/")
